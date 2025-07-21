@@ -9,6 +9,7 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
 
 import ru.practicum.shareit.exception.AccessDeniedException;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
