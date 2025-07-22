@@ -1,5 +1,6 @@
 package ru.practicum.shareit.exception;
 
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -42,10 +43,17 @@ public class ErrorHandler {
         return Map.of("error", "Ошибка валидации данных.", "message", defaultMessage);
     }
 
-    @ExceptionHandler(Throwable.class)
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleConstraintViolationException(final ConstraintViolationException e) {
+        log.warn("Ошибка нарушения ограничений валидации: {}", e.getMessage());
+        return Map.of("error", "Ошибка валидации данных.", "message", e.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Map<String, String> handleThrowable(final Throwable e) {
-        log.error("Внутренняя ошибка сервера: {}", e.getMessage(), e);
+    public Map<String, String> handleException(final Exception e) {
+        log.error("Произошла непредвиденная ошибка: {}", e.getMessage(), e);
         return Map.of("error", "Возникло исключение.", "message", e.getMessage());
     }
 
