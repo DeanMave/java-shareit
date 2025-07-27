@@ -23,7 +23,7 @@ public class CommentMapper {
         );
     }
 
-    public static Comment toComment(CommentDto commentDto, Item item, User author){
+    public static Comment toComment(CommentDto commentDto, Item item, User author) {
         return new Comment(
                 null,
                 commentDto.getText(),
