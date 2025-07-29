@@ -43,6 +43,9 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemMapper itemMapper;
+    private final BookingMapper bookingMapper;
+    private final CommentMapper commentMapper;
 
     @Override
     @Transactional
@@ -50,10 +53,10 @@ public class ItemServiceImpl implements ItemService {
         log.info("Добавление новой вещи для пользователя ID {}: {}", ownerId, itemDto.getName());
         User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id " + ownerId + " не найден"));
-        Item item = ItemMapper.toItem(itemDto, owner);
+        Item item = itemMapper.toItem(itemDto, owner);
         Item savedItem = itemRepository.save(item);
         log.info("Вещь добавлена: {}", savedItem);
-        return ItemMapper.toItemDto(savedItem, null, null);
+        return itemMapper.toItemDto(savedItem, null, null);
     }
 
     @Override
@@ -68,10 +71,10 @@ public class ItemServiceImpl implements ItemService {
         if (!existingItem.getOwner().getId().equals(ownerId)) {
             throw new AccessDeniedException("Редактировать может только владелец вещи.");
         }
-        ItemMapper.updateFromDto(existingItem, itemDto);
+        itemMapper.updateFromDto(existingItem, itemDto);
         Item updatedItem = itemRepository.save(existingItem);
         log.info("Вещь обновлена: {}", updatedItem);
-        return ItemMapper.toItemDto(updatedItem, null, null);
+        return itemMapper.toItemDto(updatedItem, null, null);
     }
 
     @Override
@@ -85,7 +88,7 @@ public class ItemServiceImpl implements ItemService {
 
         List<Comment> comments = commentRepository.findAllByItem_Id(itemId);
         List<CommentDto> commentDto = comments.stream()
-                .map(CommentMapper::toCommentDto)
+                .map(commentMapper::toCommentDto)
                 .collect(Collectors.toList());
 
         BookingItemDto lastBookingDto = null;
@@ -97,16 +100,16 @@ public class ItemServiceImpl implements ItemService {
             Optional<Booking> lastBooking = bookingRepository.findTopByItem_IdAndEndBeforeAndStatusEqualsOrderByEndDesc(
                     itemId, now, StatusBooking.APPROVED);
             if (lastBooking.isPresent()) {
-                lastBookingDto = BookingMapper.toBookingItemDto(lastBooking.get());
+                lastBookingDto = bookingMapper.toBookingItemDto(lastBooking.get());
             }
 
             Optional<Booking> nextBooking = bookingRepository.findTopByItem_IdAndStartAfterAndStatusEqualsOrderByStartAsc(
                     itemId, now, StatusBooking.APPROVED);
             if (nextBooking.isPresent()) {
-                nextBookingDto = BookingMapper.toBookingItemDto(nextBooking.get());
+                nextBookingDto = bookingMapper.toBookingItemDto(nextBooking.get());
             }
         }
-        return ItemMapper.toItemBookingDto(item, lastBookingDto, nextBookingDto, commentDto);
+        return itemMapper.toItemBookingDto(item, lastBookingDto, nextBookingDto, commentDto);
     }
 
     @Override
@@ -139,7 +142,7 @@ public class ItemServiceImpl implements ItemService {
         }
         List<Item> foundItems = itemRepository.search(text.toUpperCase());
         return foundItems.stream()
-                .map(ItemMapper::toItemResponseDto)
+                .map(itemMapper::toItemResponseDto)
                 .collect(Collectors.toList());
     }
 
@@ -156,10 +159,10 @@ public class ItemServiceImpl implements ItemService {
             throw new BadRequestException("Пользователь с ID " + userId +
                                           " не брал вещь с ID " + itemId + " в аренду или срок аренды еще не закончен.");
         }
-        Comment comment = CommentMapper.toComment(commentDto, item, user);
+        Comment comment = commentMapper.toComment(commentDto, item, user);
         Comment savedComment = commentRepository.save(comment);
         savedComment.getAuthor().getName();
-        return CommentMapper.toCommentDto(savedComment);
+        return commentMapper.toCommentDto(savedComment);
     }
 
 
@@ -180,12 +183,12 @@ public class ItemServiceImpl implements ItemService {
                 .min(Comparator.comparing(Booking::getStart));
 
         if (lastBooking.isPresent()) {
-            lastBookingDto = BookingMapper.toBookingItemDto(lastBooking.get());
+            lastBookingDto = bookingMapper.toBookingItemDto(lastBooking.get());
         }
         if (nextBooking.isPresent()) {
-            nextBookingDto = BookingMapper.toBookingItemDto(nextBooking.get());
+            nextBookingDto = bookingMapper.toBookingItemDto(nextBooking.get());
         }
 
-        return ItemMapper.toItemDto(item, lastBookingDto, nextBookingDto);
+        return itemMapper.toItemDto(item, lastBookingDto, nextBookingDto);
     }
 }

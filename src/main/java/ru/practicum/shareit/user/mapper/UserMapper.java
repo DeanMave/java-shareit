@@ -1,42 +1,24 @@
 package ru.practicum.shareit.user.mapper;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserShortDto;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class UserMapper {
-    public static UserDto toUserDto(User user) {
-        if (user == null) {
-            return null;
-        }
-        return new UserDto(user.getId(), user.getName(),
-                user.getEmail());
-    }
+@Mapper(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE, componentModel = "spring")
+public interface UserMapper {
 
-    public static User toUser(UserDto userDto) {
-        if (userDto == null) {
-            return null;
-        }
-        return new User(null, userDto.getName(), userDto.getEmail());
-    }
+    UserDto toUserDto(User user);
 
-    public static User updateFromDto(User user, UserDto userDto) {
-        if (userDto.getName() != null) {
-            user.setName(userDto.getName());
-        }
-        if (userDto.getEmail() != null) {
-            user.setEmail(userDto.getEmail());
-        }
-        return user;
-    }
+    @Mapping(target = "id", ignore = true)
+    User toUser(UserDto userDto);
 
-    public static UserShortDto toUserShortDto(User user) {
-        if (user == null) {
-            return null;
-        }
-        return new UserShortDto(user.getId(), user.getName());
-    }
+    @Mapping(target = "id",ignore = true)
+    User updateFromDto(@MappingTarget User user, UserDto userDto);
+
+    UserShortDto toUserShortDto(User user);
+
 }

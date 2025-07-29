@@ -1,54 +1,31 @@
 package ru.practicum.shareit.booking.mapper;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.dto.BookingItemDto;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
-import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.enums.StatusBooking;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.mapper.UserMapper;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class BookingMapper {
+@Mapper(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE, componentModel = "spring",
+        uses = {ItemMapper.class, UserMapper.class},
+        imports = {StatusBooking.class})
+public interface BookingMapper {
 
-    public static BookingResponseDto toBookingResponseDto(Booking booking) {
-        if (booking == null) {
-            return null;
-        }
-        return new BookingResponseDto(
-                booking.getId(),
-                booking.getStart(),
-                booking.getEnd(),
-                booking.getStatus(),
-                ItemMapper.toItemShortDto(booking.getItem()),
-                UserMapper.toUserShortDto(booking.getBooker())
-        );
-    }
+    BookingResponseDto toBookingResponseDto(Booking booking);
 
-    public static Booking toBooking(BookingRequestDto bookingDto, Item item, User booker) {
-        Booking booking = new Booking();
-        booking.setStart(bookingDto.getStart());
-        booking.setEnd(bookingDto.getEnd());
-        booking.setItem(item);
-        booking.setBooker(booker);
-        booking.setStatus(StatusBooking.WAITING);
-        return booking;
-    }
+    @Mapping(target = "status", expression = "java(StatusBooking.WAITING)")
+    @Mapping(target = "id", ignore = true)
+    Booking toBooking(BookingRequestDto bookingRequestDto, Item item, User booker);
 
-    public static BookingItemDto toBookingItemDto(Booking booking) {
-        if (booking == null) {
-            return null;
-        }
-        return new BookingItemDto(
-                booking.getId(),
-                booking.getBooker().getId(),
-                booking.getStart(),
-                booking.getEnd()
-        );
-    }
+    @Mapping(source = "booking.booker.id", target = "id")
+    BookingItemDto toBookingItemDto(Booking booking);
+
 
 }

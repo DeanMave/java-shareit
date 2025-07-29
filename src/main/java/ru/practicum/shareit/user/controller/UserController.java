@@ -7,11 +7,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.mapper.UserMapper;
-import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "/users")
@@ -22,25 +19,22 @@ public class UserController {
 
     @GetMapping
     public List<UserDto> getAllUsers() {
-        return service.getAllUsers().stream()
-                .map(UserMapper::toUserDto)
-                .collect(Collectors.toList());
+        return service.getAllUsers();
     }
 
     @GetMapping("/{id}")
     public UserDto getUserById(@Positive @PathVariable Long id) {
-        return UserMapper.toUserDto(service.getUserById(id));
+        return service.getUserById(id);
     }
 
     @PostMapping
     public UserDto addNewUser(@Valid @RequestBody UserDto userDto) {
-        User user = UserMapper.toUser(userDto);
-        return UserMapper.toUserDto(service.addNewUser(user));
+        return service.addNewUser(userDto);
     }
 
     @PatchMapping("/{id}")
     public UserDto updateUser(@Positive @PathVariable Long id, @RequestBody UserDto userDto) {
-        return UserMapper.toUserDto(service.updateUser(id, userDto));
+        return service.updateUser(id, userDto);
     }
 
     @DeleteMapping("/{id}")

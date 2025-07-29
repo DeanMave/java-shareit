@@ -12,6 +12,7 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -20,18 +21,21 @@ import java.util.*;
 public class UserServiceImp implements UserService {
 
     private final UserRepository repository;
+    private final UserMapper userMapper;
 
     @Override
-    public User getUserById(Long id) {
+    public UserDto getUserById(Long id) {
         log.info("Запрос поиска пользователя по ID: {}", id);
-        return repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
+        return userMapper.toUserDto(repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден")));
     }
 
     @Override
-    public List<User> getAllUsers() {
+    public List<UserDto> getAllUsers() {
         log.info("Запрос на получение всех пользователей");
-        return repository.findAll();
+        return repository.findAll().stream()
+                .map(userMapper::toUserDto)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -47,19 +51,20 @@ public class UserServiceImp implements UserService {
 
     @Override
     @Transactional
-    public User addNewUser(User user) {
-        log.info("Попытка добавления нового пользователя: {}", user.getEmail());
+    public UserDto addNewUser(UserDto userDto) {
+        log.info("Попытка добавления нового пользователя: {}", userDto.getEmail());
+        User user = userMapper.toUser(userDto);
         if (repository.findByEmail(user.getEmail()).isPresent()) {
             throw new ConflictException("Пользователь с email " + user.getEmail() + " уже существует.");
         }
         User savedUser = repository.save(user);
         log.info("Пользователь добавлен: {}", savedUser);
-        return savedUser;
+        return userMapper.toUserDto(savedUser);
     }
 
     @Override
     @Transactional
-    public User updateUser(Long userId, UserDto userDto) {
+    public UserDto updateUser(Long userId, UserDto userDto) {
         log.info("Попытка обновления пользователя с ID {}: {}", userId, userDto);
         User existingUser = repository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден для обновления"));
@@ -69,10 +74,10 @@ public class UserServiceImp implements UserService {
                 throw new ConflictException("Email " + userDto.getEmail() + " уже занят другим пользователем.");
             }
         }
-        UserMapper.updateFromDto(existingUser, userDto);
+        userMapper.updateFromDto(existingUser, userDto);
         User updatedUser = repository.save(existingUser);
         log.info("Пользователь обновлен: {}", updatedUser);
-        return updatedUser;
+        return userMapper.toUserDto(updatedUser);
     }
 
 }
