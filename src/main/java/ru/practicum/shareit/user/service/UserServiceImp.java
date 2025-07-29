@@ -35,6 +35,7 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
+    @Transactional
     public void deleteUserById(Long id) {
         log.info("Попытка удаления пользователя по ID: {}", id);
         if (!repository.existsById(id)) {

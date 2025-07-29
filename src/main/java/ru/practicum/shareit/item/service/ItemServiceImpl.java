@@ -137,7 +137,7 @@ public class ItemServiceImpl implements ItemService {
         if (text == null || text.isBlank()) {
             return Collections.emptyList();
         }
-        List<Item> foundItems = itemRepository.search(text);
+        List<Item> foundItems = itemRepository.search(text.toUpperCase());
         return foundItems.stream()
                 .map(ItemMapper::toItemResponseDto)
                 .collect(Collectors.toList());

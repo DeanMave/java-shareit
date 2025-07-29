@@ -7,8 +7,6 @@ import lombok.*;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.Objects;
-
 @Entity
 @Table(name = "items")
 @AllArgsConstructor
@@ -35,17 +33,4 @@ public class Item {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "request_id", nullable = true)
     private ItemRequest request;
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Item item = (Item) o;
-        return Objects.equals(id, item.id) && Objects.equals(name, item.name) && Objects.equals(description, item.description) && Objects.equals(owner, item.owner) && Objects.equals(available, item.available) && Objects.equals(request, item.request);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, description, owner, available, request);
-    }
 }
