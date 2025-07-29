@@ -1,45 +1,41 @@
 package ru.practicum.shareit.item.mapper;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import ru.practicum.shareit.item.dto.ItemDto;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+import ru.practicum.shareit.booking.dto.BookingItemDto;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.model.User;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ItemMapper {
-    public static ItemDto toItemDto(Item item) {
-        if (item == null) {
-            return null;
-        }
-        return new ItemDto(
-                item.getId(),
-                item.getName(),
-                item.getDescription(),
-                item.getAvailable()
-        );
-    }
+import java.util.List;
 
-    public static Item toItem(ItemDto itemDto, User owner) {
-        return new Item(
-                null,
-                itemDto.getName(),
-                itemDto.getDescription(),
-                owner,
-                itemDto.getAvailable(),
-                null
-        );
-    }
+@Mapper(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE, componentModel = "spring")
+public interface ItemMapper {
 
-    public static void updateFromDto(Item item, ItemDto itemDto) {
-        if (itemDto.getName() != null && !itemDto.getName().isBlank()) {
-            item.setName(itemDto.getName());
-        }
-        if (itemDto.getDescription() != null && !itemDto.getDescription().isBlank()) {
-            item.setDescription(itemDto.getDescription());
-        }
-        if (itemDto.getAvailable() != null) {
-            item.setAvailable(itemDto.getAvailable());
-        }
-    }
+    @Mapping(source = "item.id", target = "id")
+    ItemOwnerViewDto toItemDto(Item item, BookingItemDto lastBooking, BookingItemDto nextBooking);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(source = "itemOwnerViewDto.name", target = "name")
+    @Mapping(target = "request", ignore = true)
+    Item toItem(ItemOwnerViewDto itemOwnerViewDto, User owner);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "owner", ignore = true)
+    @Mapping(target = "request", ignore = true)
+    void updateFromDto(@MappingTarget Item item, ItemOwnerViewDto itemOwnerViewDto);
+
+
+    ItemShortDto toItemShortDto(Item item);
+
+    @Mapping(source = "item.id", target = "id")
+    ItemDetailsDto toItemBookingDto(Item item,
+                                    BookingItemDto lastBooking,
+                                    BookingItemDto nextBooking,
+                                    List<CommentDto> comments);
+
+    ItemSimpleDto toItemResponseDto(Item item);
+
 }

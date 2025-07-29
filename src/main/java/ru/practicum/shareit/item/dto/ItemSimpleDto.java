@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ItemDto {
+public class ItemSimpleDto {
     private Long id;
     @NotBlank(message = "Название предмета не должно быть пустым")
     private String name;
