@@ -27,12 +27,12 @@ public class ItemClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> addItem(Long userId, ItemOwnerViewDto itemDto){
-        return post("",userId,itemDto);
+    public ResponseEntity<Object> addItem(Long userId, ItemOwnerViewDto itemDto) {
+        return post("", userId, itemDto);
     }
 
 
-    public ResponseEntity<Object> addComment(Long itemId, Long userId, CommentDto commentDto){
+    public ResponseEntity<Object> addComment(Long itemId, Long userId, CommentDto commentDto) {
         return post("/" + itemId + "/comment", userId, commentDto);
     }
 
@@ -45,7 +45,7 @@ public class ItemClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getAllItemsByOwner(Long userId) {
-        return get("",userId);
+        return get("", userId);
     }
 
     public ResponseEntity<Object> searchItems(String text) {

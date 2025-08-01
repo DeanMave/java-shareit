@@ -28,21 +28,21 @@ public class ItemController {
 
     @PostMapping("/{itemId}/comment")
     public ResponseEntity<Object> addComment(@PathVariable Long itemId,
-                                 @Positive @RequestHeader("X-Sharer-User-Id") Long userId,
-                                 @Valid @RequestBody CommentDto commentDto) {
+                                             @Positive @RequestHeader("X-Sharer-User-Id") Long userId,
+                                             @Valid @RequestBody CommentDto commentDto) {
         return itemClient.addComment(itemId, userId, commentDto);
     }
 
     @PatchMapping("/{itemId}")
     public ResponseEntity<Object> updateItem(@Positive @RequestHeader("X-Sharer-User-Id") Long userId,
-                                       @Positive @PathVariable Long itemId,
-                                       @RequestBody ItemOwnerViewDto itemDto) {
+                                             @Positive @PathVariable Long itemId,
+                                             @RequestBody ItemOwnerViewDto itemDto) {
         return itemClient.updateItem(userId, itemId, itemDto);
     }
 
     @GetMapping("/{itemId}")
     public ResponseEntity<Object> getItemById(@Positive @RequestHeader("X-Sharer-User-Id") Long userId,
-                                      @Positive @PathVariable Long itemId) {
+                                              @Positive @PathVariable Long itemId) {
         return itemClient.getItemById(itemId, userId);
     }
 
