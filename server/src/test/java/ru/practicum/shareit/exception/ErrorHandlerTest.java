@@ -5,21 +5,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.item.controller.ItemController;
-import ru.practicum.shareit.item.dto.ItemOwnerViewDto;
-import ru.practicum.shareit.item.service.ItemService;
+import org.springframework.web.bind.annotation.*;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = ItemController.class)
+@WebMvcTest(controllers = {ErrorHandler.class, ErrorHandlerTest.TestController.class})
 class ErrorHandlerTest {
 
     @Autowired
@@ -29,33 +23,63 @@ class ErrorHandlerTest {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private ItemService itemService;
+    private TestController testController;
 
     @Test
     void whenThrowNotFoundException_thenReturns404AndCorrectMessage() throws Exception {
-        when(itemService.getItemById(anyLong(), anyLong()))
-                .thenThrow(new NotFoundException("Вещь с id 999 не найдена."));
-
-        mockMvc.perform(get("/items/{itemId}", 999L)
-                        .header("X-Sharer-User-Id", 1L))
+        doThrow(new NotFoundException("Объект не найден."))
+                .when(testController).testMethod();
+        mockMvc.perform(get("/test"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("Искомый объект не найден."))
-                .andExpect(jsonPath("$.message").value("Вещь с id 999 не найдена."));
+                .andExpect(jsonPath("$.message").value("Объект не найден."));
+    }
+
+    @Test
+    void whenThrowValidationException_thenReturns400AndCorrectMessage() throws Exception {
+        doThrow(new ValidationException("Проверка не пройдена."))
+                .when(testController).testMethod();
+        mockMvc.perform(get("/test"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Ошибка при валидации данных."))
+                .andExpect(jsonPath("$.message").value("Проверка не пройдена."));
+    }
+
+    @Test
+    void whenThrowConflictException_thenReturns409AndCorrectMessage() throws Exception {
+        doThrow(new ConflictException("Конфликт данных."))
+                .when(testController).testMethod();
+        mockMvc.perform(get("/test"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error").value("Конфликт данных."))
+                .andExpect(jsonPath("$.message").value("Конфликт данных."));
     }
 
     @Test
     void whenThrowAccessDeniedException_thenReturns403AndCorrectMessage() throws Exception {
-        when(itemService.updateItem(anyLong(), anyLong(), any(ItemOwnerViewDto.class)))
-                .thenThrow(new AccessDeniedException("Редактировать может только владелец вещи."));
-
-        ItemOwnerViewDto inputDto = new ItemOwnerViewDto(null, "Вещь", "Описание вещи", true, null, null, null);
-
-        mockMvc.perform(patch("/items/{itemId}", 1L)
-                        .header("X-Sharer-User-Id", 999L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(inputDto)))
+        doThrow(new AccessDeniedException("Доступ запрещен."))
+                .when(testController).testMethod();
+        mockMvc.perform(get("/test"))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.error").value("Доступ запрещен."))
-                .andExpect(jsonPath("$.message").value("Редактировать может только владелец вещи."));
+                .andExpect(jsonPath("$.message").value("Доступ запрещен."));
+    }
+
+    @Test
+    void whenThrowGenericException_thenReturns500AndCorrectMessage() throws Exception {
+        doThrow(new RuntimeException("Непредвиденная ошибка."))
+                .when(testController).testMethod();
+        mockMvc.perform(get("/test"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.error").value("Возникло исключение."))
+                .andExpect(jsonPath("$.message").value("Непредвиденная ошибка."));
+    }
+
+    @RestController
+    @RequestMapping("/test")
+    static class TestController {
+        @GetMapping
+        public void testMethod() {
+        }
     }
 }
