@@ -34,11 +34,13 @@ public class ItemRequestServiceImpTest {
 
     private UserDto user1;
     private UserDto user2;
+    private UserDto user3;
 
     @BeforeEach
     void setUp() {
         user1 = userService.addNewUser(new UserDto(null, "User1", "user1@mail.ru"));
         user2 = userService.addNewUser(new UserDto(null, "User2", "user2@mail.ru"));
+        user3 = userService.addNewUser(new UserDto(null, "User3", "user3@mail.ru"));
     }
 
     @Test
@@ -129,5 +131,49 @@ public class ItemRequestServiceImpTest {
         assertThatThrownBy(() -> itemRequestService.getRequestById(user1.getId(), 999L))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessageContaining("Запрос с id 999 не найден.");
+    }
+
+
+    @Test
+    void getUserRequests_whenNoItemsForRequests_shouldReturnRequestsWithEmptyItemList() {
+        itemRequestService.addNewRequest(user1.getId(), new ItemRequestDtoIn("Нужна дрель"));
+        itemRequestService.addNewRequest(user1.getId(), new ItemRequestDtoIn("Нужен молоток"));
+
+        List<ItemRequestDtoOut> userRequests = itemRequestService.getUserRequests(user1.getId());
+
+        assertThat(userRequests).hasSize(2);
+        assertThat(userRequests.get(0).getItems()).isEmpty();
+        assertThat(userRequests.get(1).getItems()).isEmpty();
+    }
+
+    @Test
+    void getAllRequests_whenUserHasNoRequests_shouldReturnEmptyList() {
+        List<ItemRequestDtoOut> allRequests = itemRequestService.getAllRequests(user3.getId(), 0, 10);
+        assertThat(allRequests).isEmpty();
+    }
+
+    @Test
+    void getAllRequests_withFromExceedingTotalRequests_shouldReturnEmptyList() {
+        itemRequestService.addNewRequest(user2.getId(), new ItemRequestDtoIn("Нужен молоток"));
+        itemRequestService.addNewRequest(user2.getId(), new ItemRequestDtoIn("Нужен винт"));
+
+        List<ItemRequestDtoOut> allRequests = itemRequestService.getAllRequests(user1.getId(), 5, 10);
+        assertThat(allRequests).isEmpty();
+    }
+
+    @Test
+    void getRequestById_whenUserNotFound_shouldThrowNotFoundException() {
+        itemRequestService.addNewRequest(user1.getId(), new ItemRequestDtoIn("Нужна дрель"));
+
+        assertThatThrownBy(() -> itemRequestService.getRequestById(999L, 1L))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessageContaining("Пользователя с id 999 не существует");
+    }
+
+    @Test
+    void getAllRequests_whenUserNotFound_shouldThrowNotFoundException() {
+        assertThatThrownBy(() -> itemRequestService.getAllRequests(999L, 0, 10))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessageContaining("Пользователя с id 999 не существует");
     }
 }

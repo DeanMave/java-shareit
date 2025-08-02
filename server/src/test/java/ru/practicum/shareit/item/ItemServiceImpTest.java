@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,12 +104,10 @@ public class ItemServiceImpTest {
 
     @Test
     void getItemById_shouldReturnItemDetailsForOwner() {
-        // Создаем бронирование
         BookingRequestDto bookingRequest = new BookingRequestDto(itemDto.getId(), LocalDateTime.now().minusDays(2), LocalDateTime.now().minusDays(1));
         BookingResponseDto booking = bookingService.addNewBooking(bookingRequest, otherUser.getId());
         bookingService.updateBooking(booking.getId(), owner.getId(), true);
 
-        // Добавляем комментарий
         CommentDto commentDto = new CommentDto();
         commentDto.setText("Комментарий к вещи");
         itemService.addComment(itemDto.getId(), otherUser.getId(), commentDto);
@@ -151,7 +150,6 @@ public class ItemServiceImpTest {
 
     @Test
     void addComment_whenUserBookedItem_shouldAddComment() {
-        // Создаем бронирование, которое уже закончилось
         BookingRequestDto bookingRequest = new BookingRequestDto(itemDto.getId(), LocalDateTime.now().minusDays(2), LocalDateTime.now().minusDays(1));
         BookingResponseDto booking = bookingService.addNewBooking(bookingRequest, otherUser.getId());
         bookingService.updateBooking(booking.getId(), owner.getId(), true);
@@ -173,5 +171,84 @@ public class ItemServiceImpTest {
         assertThatThrownBy(() -> itemService.addComment(itemDto.getId(), otherUser.getId(), commentDto))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessageContaining("не брал вещь с ID");
+    }
+
+    @Test
+    void addItem_whenItemDtoHasNullFields_shouldThrowConstraintViolationException() {
+        ItemOwnerViewDto newItemDto = new ItemOwnerViewDto();
+        newItemDto.setName(null);
+        newItemDto.setDescription("Описание");
+        newItemDto.setAvailable(true);
+
+        assertThatThrownBy(() -> itemService.addItem(owner.getId(), newItemDto))
+                .isInstanceOf(ConstraintViolationException.class)
+                .hasMessageContaining("Название предмета не должно быть пустым");
+    }
+
+    @Test
+    void updateItem_whenUserDoesNotExist_shouldThrowNotFoundException() {
+        ItemOwnerViewDto updateDto = new ItemOwnerViewDto();
+        updateDto.setName("Обновленная дрель");
+
+        assertThatThrownBy(() -> itemService.updateItem(999L, itemDto.getId(), updateDto))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessageContaining("Пользователь с id 999 не найден");
+    }
+
+    @Test
+    void updateItem_whenItemDoesNotExist_shouldThrowNotFoundException() {
+        ItemOwnerViewDto updateDto = new ItemOwnerViewDto();
+        updateDto.setName("Обновленная дрель");
+
+        assertThatThrownBy(() -> itemService.updateItem(owner.getId(), 999L, updateDto))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessageContaining("Вещь с id 999 не найдена.");
+    }
+
+    @Test
+    void getItemById_whenUserDoesNotExist_shouldThrowNotFoundException() {
+        assertThatThrownBy(() -> itemService.getItemById(itemDto.getId(), 999L))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessageContaining("Пользователь с id 999 не найден");
+    }
+
+    @Test
+    void getItemById_whenItemDoesNotExist_shouldThrowNotFoundException() {
+        assertThatThrownBy(() -> itemService.getItemById(999L, owner.getId()))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessageContaining("Вещь с id 999 не найдена.");
+    }
+
+    @Test
+    void getAllItemsByOwner_whenUserDoesNotExist_shouldThrowNotFoundException() {
+        assertThatThrownBy(() -> itemService.getAllItemsByOwner(999L))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessageContaining("Пользователь с id 999 не найден");
+    }
+
+    @Test
+    void searchItems_whenTextIsBlank_shouldReturnEmptyList() {
+        List<ItemSimpleDto> foundItems = itemService.searchItems("   ");
+        assertThat(foundItems).isEmpty();
+    }
+
+    @Test
+    void addComment_whenUserDoesNotExist_shouldThrowNotFoundException() {
+        CommentDto commentDto = new CommentDto();
+        commentDto.setText("Тестовый комментарий");
+
+        assertThatThrownBy(() -> itemService.addComment(itemDto.getId(), 999L, commentDto))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessageContaining("Пользователь с id 999 не найден");
+    }
+
+    @Test
+    void addComment_whenItemDoesNotExist_shouldThrowNotFoundException() {
+        CommentDto commentDto = new CommentDto();
+        commentDto.setText("Тестовый комментарий");
+
+        assertThatThrownBy(() -> itemService.addComment(999L, otherUser.getId(), commentDto))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessageContaining("Вещь с id 999 не найдена");
     }
 }

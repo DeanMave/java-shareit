@@ -106,4 +106,40 @@ public class UserServiceImpTest {
         assertThatThrownBy(() -> userService.getUserById(savedUser.getId()))
                 .isInstanceOf(NotFoundException.class);
     }
+
+    @Test
+    void updateUser_whenUpdateOnlyName_shouldUpdateNameAndKeepEmail() {
+        UserDto savedUser = userService.addNewUser(user1);
+        UserDto updateDto = new UserDto(null, "Name Only Updated", null);
+        UserDto updatedUser = userService.updateUser(savedUser.getId(), updateDto);
+
+        assertThat(updatedUser.getName()).isEqualTo("Name Only Updated");
+        assertThat(updatedUser.getEmail()).isEqualTo(user1.getEmail());
+    }
+
+    @Test
+    void updateUser_whenUpdateOnlyEmail_shouldUpdateEmailAndKeepName() {
+        UserDto savedUser = userService.addNewUser(user1);
+        UserDto updateDto = new UserDto(null, null, "email_only_updated@mail.ru");
+        UserDto updatedUser = userService.updateUser(savedUser.getId(), updateDto);
+
+        assertThat(updatedUser.getName()).isEqualTo(user1.getName());
+        assertThat(updatedUser.getEmail()).isEqualTo("email_only_updated@mail.ru");
+    }
+
+    @Test
+    void updateUser_whenUserNotFound_shouldThrowNotFoundException() {
+        UserDto updateDto = new UserDto(null, "Updated User", "updated@mail.ru");
+
+        assertThatThrownBy(() -> userService.updateUser(999L, updateDto))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessageContaining("Пользователь с id 999 не найден для обновления");
+    }
+
+    @Test
+    void deleteUserById_whenUserNotFound_shouldThrowNotFoundException() {
+        assertThatThrownBy(() -> userService.deleteUserById(999L))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessageContaining("Пользователь с ID 999 не найден для удаления.");
+    }
 }

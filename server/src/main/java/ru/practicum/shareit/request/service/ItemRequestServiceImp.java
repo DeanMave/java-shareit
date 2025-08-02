@@ -74,11 +74,11 @@ public class ItemRequestServiceImp implements ItemRequestService {
     }
 
     @Override
-    public List<ItemRequestDtoOut> getAllRequests(Long userId, Integer from, Integer size) {
+    public List<ItemRequestDtoOut> getAllRequests(Long userId, Integer page, Integer size) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователя с id " + userId + " не существует"));
         Sort sort = Sort.by(Sort.Direction.DESC, "created");
-        Pageable pageable = PageRequest.of(from / size, size, sort);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
         List<ItemRequest> requests = repository.findByRequestor_IdNotOrderByCreatedDesc(userId, pageable);
 
