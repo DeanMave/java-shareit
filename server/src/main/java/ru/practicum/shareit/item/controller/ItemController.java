@@ -18,8 +18,8 @@ public class ItemController {
 
     @PostMapping
     public ItemOwnerViewDto addItem(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                    @RequestBody ItemOwnerViewDto itemDto) {
-        return itemService.addItem(userId, itemDto);
+                                    @RequestBody ItemOwnerViewDto itemOwnerViewDto) {
+        return itemService.addItem(userId, itemOwnerViewDto);
     }
 
     @PostMapping("/{itemId}/comment")

@@ -1,6 +1,5 @@
 package ru.practicum.shareit.exception;
 
-import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -8,7 +7,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.Map;
-import java.util.Objects;
 
 @Slf4j
 @RestControllerAdvice
@@ -33,21 +31,6 @@ public class ErrorHandler {
     public Map<String, String> handleConflict(final ConflictException e) {
         log.warn("Ошибка: конфликт данных: {}", e.getMessage());
         return Map.of("error", "Конфликт данных.", "message", e.getMessage());
-    }
-
-    @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleMethodArgumentNotValidException(final org.springframework.web.bind.MethodArgumentNotValidException e) {
-        String defaultMessage = Objects.requireNonNull(e.getBindingResult().getFieldError()).getDefaultMessage();
-        log.warn("Ошибка аргументов метода: {}", defaultMessage);
-        return Map.of("error", "Ошибка валидации данных.", "message", defaultMessage);
-    }
-
-    @ExceptionHandler(ConstraintViolationException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleConstraintViolationException(final ConstraintViolationException e) {
-        log.warn("Ошибка нарушения ограничений валидации: {}", e.getMessage());
-        return Map.of("error", "Ошибка валидации данных.", "message", e.getMessage());
     }
 
     @ExceptionHandler(Exception.class)

@@ -60,7 +60,7 @@ public class BookingServiceImpTest {
         requestDto.setStart(LocalDateTime.now().plusDays(1));
         requestDto.setEnd(LocalDateTime.now().plusDays(2));
 
-        BookingResponseDto savedBooking = bookingService.addNewBooking(requestDto, booker.getId());
+        BookingResponseDto savedBooking = bookingService.addNewBooking(booker.getId(), requestDto);
 
         assertThat(savedBooking).isNotNull();
         assertThat(savedBooking.getId()).isNotNull();
@@ -82,7 +82,7 @@ public class BookingServiceImpTest {
         requestDto.setStart(LocalDateTime.now().plusDays(1));
         requestDto.setEnd(LocalDateTime.now().plusDays(2));
 
-        assertThatThrownBy(() -> bookingService.addNewBooking(requestDto, booker.getId()))
+        assertThatThrownBy(() -> bookingService.addNewBooking(booker.getId(), requestDto))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessageContaining("Вещь не доступна для бронирования!");
     }
@@ -94,7 +94,7 @@ public class BookingServiceImpTest {
         requestDto.setStart(LocalDateTime.now().plusDays(1));
         requestDto.setEnd(LocalDateTime.now().plusDays(2));
 
-        assertThatThrownBy(() -> bookingService.addNewBooking(requestDto, owner.getId()))
+        assertThatThrownBy(() -> bookingService.addNewBooking(owner.getId(), requestDto))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessageContaining("Владелец вещи не может бронировать свою же вещь!");
     }
@@ -105,7 +105,7 @@ public class BookingServiceImpTest {
         requestDto.setItemId(itemDto.getId());
         requestDto.setStart(LocalDateTime.now().plusDays(1));
         requestDto.setEnd(LocalDateTime.now().plusDays(2));
-        BookingResponseDto createdBooking = bookingService.addNewBooking(requestDto, booker.getId());
+        BookingResponseDto createdBooking = bookingService.addNewBooking(booker.getId(), requestDto);
 
         BookingResponseDto foundByOwner = bookingService.getBookingById(createdBooking.getId(), owner.getId());
         assertThat(foundByOwner).isNotNull();
@@ -122,7 +122,7 @@ public class BookingServiceImpTest {
         requestDto.setItemId(itemDto.getId());
         requestDto.setStart(LocalDateTime.now().plusDays(1));
         requestDto.setEnd(LocalDateTime.now().plusDays(2));
-        BookingResponseDto createdBooking = bookingService.addNewBooking(requestDto, booker.getId());
+        BookingResponseDto createdBooking = bookingService.addNewBooking(booker.getId(), requestDto);
 
         assertThatThrownBy(() -> bookingService.getBookingById(createdBooking.getId(), anotherUser.getId()))
                 .isInstanceOf(AccessDeniedException.class)
@@ -135,7 +135,7 @@ public class BookingServiceImpTest {
         requestDto.setItemId(itemDto.getId());
         requestDto.setStart(LocalDateTime.now().plusDays(1));
         requestDto.setEnd(LocalDateTime.now().plusDays(2));
-        BookingResponseDto createdBooking = bookingService.addNewBooking(requestDto, booker.getId());
+        BookingResponseDto createdBooking = bookingService.addNewBooking(booker.getId(), requestDto);
 
         BookingResponseDto updatedBooking = bookingService.updateBooking(createdBooking.getId(), owner.getId(), true);
         assertThat(updatedBooking.getStatus()).isEqualTo(StatusBooking.APPROVED);
@@ -147,7 +147,7 @@ public class BookingServiceImpTest {
         requestDto.setItemId(itemDto.getId());
         requestDto.setStart(LocalDateTime.now().plusDays(1));
         requestDto.setEnd(LocalDateTime.now().plusDays(2));
-        BookingResponseDto createdBooking = bookingService.addNewBooking(requestDto, booker.getId());
+        BookingResponseDto createdBooking = bookingService.addNewBooking(booker.getId(), requestDto);
 
         BookingResponseDto updatedBooking = bookingService.updateBooking(createdBooking.getId(), owner.getId(), false);
         assertThat(updatedBooking.getStatus()).isEqualTo(StatusBooking.REJECTED);
@@ -159,13 +159,13 @@ public class BookingServiceImpTest {
         requestDto1.setItemId(itemDto.getId());
         requestDto1.setStart(LocalDateTime.now().plusDays(1));
         requestDto1.setEnd(LocalDateTime.now().plusDays(2));
-        bookingService.addNewBooking(requestDto1, booker.getId());
+        bookingService.addNewBooking(booker.getId(), requestDto1);
 
         BookingRequestDto requestDto2 = new BookingRequestDto();
         requestDto2.setItemId(itemDto.getId());
         requestDto2.setStart(LocalDateTime.now().plusDays(3));
         requestDto2.setEnd(LocalDateTime.now().plusDays(4));
-        bookingService.addNewBooking(requestDto2, booker.getId());
+        bookingService.addNewBooking(booker.getId(), requestDto2);
 
         List<BookingResponseDto> bookings = bookingService.getUserBookings(booker.getId(), "ALL");
         assertThat(bookings).hasSize(2);
@@ -185,7 +185,7 @@ public class BookingServiceImpTest {
         requestDto.setStart(LocalDateTime.now().plusDays(1));
         requestDto.setEnd(LocalDateTime.now().plusDays(2));
 
-        assertThatThrownBy(() -> bookingService.addNewBooking(requestDto, 999L))
+        assertThatThrownBy(() -> bookingService.addNewBooking(999L, requestDto))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessageContaining("Пользователь с id 999 не найден");
     }
@@ -197,7 +197,7 @@ public class BookingServiceImpTest {
         requestDto.setStart(LocalDateTime.now().plusDays(1));
         requestDto.setEnd(LocalDateTime.now().plusDays(2));
 
-        assertThatThrownBy(() -> bookingService.addNewBooking(requestDto, booker.getId()))
+        assertThatThrownBy(() -> bookingService.addNewBooking(booker.getId(), requestDto))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessageContaining("Вещь с id 999 не найдена.");
     }
@@ -209,7 +209,7 @@ public class BookingServiceImpTest {
         requestDto.setStart(LocalDateTime.now().plusDays(2));
         requestDto.setEnd(LocalDateTime.now().plusDays(1));
 
-        assertThatThrownBy(() -> bookingService.addNewBooking(requestDto, booker.getId()))
+        assertThatThrownBy(() -> bookingService.addNewBooking(booker.getId(), requestDto))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessageContaining("Дата окончания бронирования не может быть раньше или равна дате начала.");
     }
@@ -220,7 +220,7 @@ public class BookingServiceImpTest {
         firstBooking.setItemId(itemDto.getId());
         firstBooking.setStart(LocalDateTime.now().plusDays(1));
         firstBooking.setEnd(LocalDateTime.now().plusDays(3));
-        bookingService.addNewBooking(firstBooking, booker.getId());
+        bookingService.addNewBooking(booker.getId(), firstBooking);
 
         BookingRequestDto overlappingBooking = new BookingRequestDto();
         overlappingBooking.setItemId(itemDto.getId());
@@ -228,7 +228,7 @@ public class BookingServiceImpTest {
         overlappingBooking.setEnd(LocalDateTime.now().plusDays(4));
         UserDto secondBooker = userService.addNewUser(new UserDto(null, "Booker2", "booker2@mail.ru"));
 
-        assertThatThrownBy(() -> bookingService.addNewBooking(overlappingBooking, secondBooker.getId()))
+        assertThatThrownBy(() -> bookingService.addNewBooking(secondBooker.getId(), overlappingBooking))
                 .isInstanceOf(ConflictException.class)
                 .hasMessageContaining("Вещь уже забронирована на эти даты.");
     }
@@ -239,7 +239,7 @@ public class BookingServiceImpTest {
         requestDto.setItemId(itemDto.getId());
         requestDto.setStart(LocalDateTime.now().plusDays(1));
         requestDto.setEnd(LocalDateTime.now().plusDays(2));
-        BookingResponseDto createdBooking = bookingService.addNewBooking(requestDto, booker.getId());
+        BookingResponseDto createdBooking = bookingService.addNewBooking(booker.getId(), requestDto);
 
         assertThatThrownBy(() -> bookingService.updateBooking(createdBooking.getId(), booker.getId(), true))
                 .isInstanceOf(BadRequestException.class)
@@ -252,7 +252,7 @@ public class BookingServiceImpTest {
         requestDto.setItemId(itemDto.getId());
         requestDto.setStart(LocalDateTime.now().plusDays(1));
         requestDto.setEnd(LocalDateTime.now().plusDays(2));
-        BookingResponseDto createdBooking = bookingService.addNewBooking(requestDto, booker.getId());
+        BookingResponseDto createdBooking = bookingService.addNewBooking(booker.getId(), requestDto);
         bookingService.updateBooking(createdBooking.getId(), owner.getId(), true);
 
         assertThatThrownBy(() -> bookingService.updateBooking(createdBooking.getId(), owner.getId(), false))
@@ -294,19 +294,19 @@ public class BookingServiceImpTest {
         requestDto1.setItemId(itemDto.getId());
         requestDto1.setStart(LocalDateTime.now().minusDays(2));
         requestDto1.setEnd(LocalDateTime.now().minusDays(1));
-        bookingService.addNewBooking(requestDto1, booker.getId());
+        bookingService.addNewBooking(booker.getId(), requestDto1);
 
         BookingRequestDto requestDto2 = new BookingRequestDto();
         requestDto2.setItemId(itemDto.getId());
         requestDto2.setStart(LocalDateTime.now().minusHours(1));
         requestDto2.setEnd(LocalDateTime.now().plusHours(1));
-        bookingService.addNewBooking(requestDto2, booker.getId());
+        bookingService.addNewBooking(booker.getId(), requestDto2);
 
         BookingRequestDto requestDto3 = new BookingRequestDto();
         requestDto3.setItemId(itemDto.getId());
         requestDto3.setStart(LocalDateTime.now().plusDays(1));
         requestDto3.setEnd(LocalDateTime.now().plusDays(2));
-        BookingResponseDto waitingBooking = bookingService.addNewBooking(requestDto3, booker.getId());
+        BookingResponseDto waitingBooking = bookingService.addNewBooking(booker.getId(), requestDto3);
 
         bookingService.updateBooking(waitingBooking.getId(), owner.getId(), false);
 
@@ -323,19 +323,19 @@ public class BookingServiceImpTest {
         requestDto1.setItemId(itemDto.getId());
         requestDto1.setStart(LocalDateTime.now().minusDays(2));
         requestDto1.setEnd(LocalDateTime.now().minusDays(1));
-        bookingService.addNewBooking(requestDto1, booker.getId());
+        bookingService.addNewBooking(booker.getId(), requestDto1);
 
         BookingRequestDto requestDto2 = new BookingRequestDto();
         requestDto2.setItemId(itemDto.getId());
         requestDto2.setStart(LocalDateTime.now().minusHours(1));
         requestDto2.setEnd(LocalDateTime.now().plusHours(1));
-        bookingService.addNewBooking(requestDto2, booker.getId());
+        bookingService.addNewBooking(booker.getId(), requestDto2);
 
         BookingRequestDto requestDto3 = new BookingRequestDto();
         requestDto3.setItemId(itemDto.getId());
         requestDto3.setStart(LocalDateTime.now().plusDays(1));
         requestDto3.setEnd(LocalDateTime.now().plusDays(2));
-        BookingResponseDto waitingBooking = bookingService.addNewBooking(requestDto3, booker.getId());
+        BookingResponseDto waitingBooking = bookingService.addNewBooking(booker.getId(), requestDto3);
 
         bookingService.updateBooking(waitingBooking.getId(), owner.getId(), false);
 

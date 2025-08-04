@@ -18,6 +18,7 @@ public class ItemOwnerViewDto {
     private String description;
     @NotNull(message = "Статус доступности предмета должен быть указан")
     private Boolean available;
+    private Long requestId;
     private BookingItemDto lastBooking;
     private BookingItemDto nextBooking;
 }

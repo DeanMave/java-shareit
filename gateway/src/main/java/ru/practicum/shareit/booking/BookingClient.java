@@ -9,8 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
-
-import ru.practicum.shareit.booking.dto.BookItemRequestDto;
+import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingState;
 import ru.practicum.shareit.client.BaseClient;
 
@@ -28,7 +27,7 @@ public class BookingClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> getBookings(long userId, BookingState state, Integer from, Integer size) {
+    public ResponseEntity<Object> getBookings(Long userId, BookingState state, Integer from, Integer size) {
         Map<String, Object> parameters = Map.of(
                 "state", state.name(),
                 "from", from,
@@ -37,15 +36,15 @@ public class BookingClient extends BaseClient {
         return get("?state={state}&from={from}&size={size}", userId, parameters);
     }
 
-    public ResponseEntity<Object> bookItem(long userId, BookItemRequestDto requestDto) {
+    public ResponseEntity<Object> bookItem(Long userId, BookingRequestDto requestDto) {
         return post("", userId, requestDto);
     }
 
-    public ResponseEntity<Object> getBooking(long userId, Long bookingId) {
+    public ResponseEntity<Object> getBooking(Long userId, Long bookingId) {
         return get("/" + bookingId, userId);
     }
 
-    public ResponseEntity<Object> getOwnerBookings(long ownerId, BookingState state, Integer from, Integer size) {
+    public ResponseEntity<Object> getOwnerBookings(Long ownerId, BookingState state, Integer from, Integer size) {
         Map<String, Object> parameters = Map.of(
                 "state", state.name(),
                 "from", from,
@@ -54,10 +53,11 @@ public class BookingClient extends BaseClient {
         return get("/owner?state={state}&from={from}&size={size}", ownerId, parameters);
     }
 
-    public ResponseEntity<Object> updateBooking(long userId, Long bookingId, Boolean approved) {
+    public ResponseEntity<Object> updateBooking(Long userId, Long bookingId, Boolean approved) {
         Map<String, Object> parameters = Map.of(
+                "bookingId", bookingId,
                 "approved", approved
         );
-        return patch("/" + bookingId + "?approved={approved}", userId, parameters);
+        return patch("/{bookingId}?approved={approved}", userId, parameters, null);
     }
 }

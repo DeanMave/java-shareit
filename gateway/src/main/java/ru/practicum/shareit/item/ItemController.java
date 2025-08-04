@@ -21,33 +21,33 @@ public class ItemController {
     private final ItemClient itemClient;
 
     @PostMapping
-    public ResponseEntity<Object> addItem(@Positive @RequestHeader("X-Sharer-User-Id") Long userId,
-                                          @Valid @RequestBody ItemOwnerViewDto itemDto) {
-        return itemClient.addItem(userId, itemDto);
+    public ResponseEntity<Object> addItem(@Positive @RequestHeader("X-Sharer-User-Id") long userId,
+                                          @Valid @RequestBody ItemOwnerViewDto itemOwnerViewDto) {
+        return itemClient.addItem(userId, itemOwnerViewDto);
     }
 
     @PostMapping("/{itemId}/comment")
-    public ResponseEntity<Object> addComment(@PathVariable Long itemId,
-                                             @Positive @RequestHeader("X-Sharer-User-Id") Long userId,
+    public ResponseEntity<Object> addComment(@PathVariable long itemId,
+                                             @Positive @RequestHeader("X-Sharer-User-Id") long userId,
                                              @Valid @RequestBody CommentDto commentDto) {
         return itemClient.addComment(itemId, userId, commentDto);
     }
 
     @PatchMapping("/{itemId}")
-    public ResponseEntity<Object> updateItem(@Positive @RequestHeader("X-Sharer-User-Id") Long userId,
-                                             @Positive @PathVariable Long itemId,
+    public ResponseEntity<Object> updateItem(@Positive @RequestHeader("X-Sharer-User-Id") long userId,
+                                             @Positive @PathVariable long itemId,
                                              @RequestBody ItemOwnerViewDto itemDto) {
         return itemClient.updateItem(userId, itemId, itemDto);
     }
 
     @GetMapping("/{itemId}")
-    public ResponseEntity<Object> getItemById(@Positive @RequestHeader("X-Sharer-User-Id") Long userId,
-                                              @Positive @PathVariable Long itemId) {
+    public ResponseEntity<Object> getItemById(@Positive @RequestHeader("X-Sharer-User-Id") long userId,
+                                              @Positive @PathVariable long itemId) {
         return itemClient.getItemById(itemId, userId);
     }
 
     @GetMapping
-    public ResponseEntity<Object> getItemsByOwner(@Positive @RequestHeader("X-Sharer-User-Id") Long userId) {
+    public ResponseEntity<Object> getItemsByOwner(@Positive @RequestHeader("X-Sharer-User-Id") long userId) {
         return itemClient.getAllItemsByOwner(userId);
     }
 

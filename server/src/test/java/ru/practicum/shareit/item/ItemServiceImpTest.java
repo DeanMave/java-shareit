@@ -105,7 +105,7 @@ public class ItemServiceImpTest {
     @Test
     void getItemById_shouldReturnItemDetailsForOwner() {
         BookingRequestDto bookingRequest = new BookingRequestDto(itemDto.getId(), LocalDateTime.now().minusDays(2), LocalDateTime.now().minusDays(1));
-        BookingResponseDto booking = bookingService.addNewBooking(bookingRequest, otherUser.getId());
+        BookingResponseDto booking = bookingService.addNewBooking(otherUser.getId(), bookingRequest);
         bookingService.updateBooking(booking.getId(), owner.getId(), true);
 
         CommentDto commentDto = new CommentDto();
@@ -151,7 +151,7 @@ public class ItemServiceImpTest {
     @Test
     void addComment_whenUserBookedItem_shouldAddComment() {
         BookingRequestDto bookingRequest = new BookingRequestDto(itemDto.getId(), LocalDateTime.now().minusDays(2), LocalDateTime.now().minusDays(1));
-        BookingResponseDto booking = bookingService.addNewBooking(bookingRequest, otherUser.getId());
+        BookingResponseDto booking = bookingService.addNewBooking(otherUser.getId(), bookingRequest);
         bookingService.updateBooking(booking.getId(), owner.getId(), true);
 
         CommentDto commentDto = new CommentDto();

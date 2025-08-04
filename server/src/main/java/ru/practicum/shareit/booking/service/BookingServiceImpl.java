@@ -51,7 +51,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public BookingResponseDto addNewBooking(BookingRequestDto requestDto, Long userId) {
+    public BookingResponseDto addNewBooking(Long userId, BookingRequestDto requestDto) {
         log.info("Добавление нового бронирования для пользователя с ID " + userId);
         User booker = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));

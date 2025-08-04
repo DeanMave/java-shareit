@@ -16,6 +16,7 @@ import java.util.List;
         uses = {UserMapper.class})
 public interface ItemRequestMapper {
 
+    @Mapping(source = "items", target = "items")
     ItemRequestDtoOut toItemRequestDtoOut(ItemRequest itemRequest, List<ItemRequestResponseDto> items);
 
     @Mapping(target = "id", ignore = true)

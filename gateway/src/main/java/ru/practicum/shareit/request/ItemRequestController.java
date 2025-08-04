@@ -18,26 +18,26 @@ public class ItemRequestController {
     private final ItemRequestClient itemRequestClient;
 
     @PostMapping
-    public ResponseEntity<Object> addNewRequest(@Positive @RequestHeader("X-Sharer-User-Id") Long userId,
+    public ResponseEntity<Object> addNewRequest(@Positive @RequestHeader("X-Sharer-User-Id") long userId,
                                                 @Valid @RequestBody ItemRequestDtoIn itemRequestDtoIn) {
         return itemRequestClient.addNewRequest(userId, itemRequestDtoIn);
     }
 
-    @GetMapping()
-    public ResponseEntity<Object> getUserRequests(@Positive @RequestHeader("X-Sharer-User-Id") Long userId) {
+    @GetMapping
+    public ResponseEntity<Object> getUserRequests(@Positive @RequestHeader("X-Sharer-User-Id") long userId) {
         return itemRequestClient.getUserRequests(userId);
     }
 
     @GetMapping("/all")
-    public ResponseEntity<Object> getAllRequests(@Positive @RequestHeader("X-Sharer-User-Id") Long userId,
+    public ResponseEntity<Object> getAllRequests(@Positive @RequestHeader("X-Sharer-User-Id") long userId,
                                                  @RequestParam(defaultValue = "0") Integer from,
                                                  @RequestParam(defaultValue = "10") Integer size) {
         return itemRequestClient.getAllRequests(userId, from, size);
     }
 
     @GetMapping("/{requestId}")
-    public ResponseEntity<Object> getRequestById(@Positive @RequestHeader("X-Sharer-User-Id") Long userId,
-                                                 @Positive @PathVariable Long requestId) {
+    public ResponseEntity<Object> getRequestById(@Positive @RequestHeader("X-Sharer-User-Id") long userId,
+                                                 @Positive @PathVariable long requestId) {
         return itemRequestClient.getRequestById(userId, requestId);
     }
 }

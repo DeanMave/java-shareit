@@ -35,7 +35,7 @@ public class BookingController {
     @PostMapping
     public BookingResponseDto addNewBooking(@RequestHeader("X-Sharer-User-Id") Long userId,
                                             @RequestBody BookingRequestDto requestDto) {
-        return bookingService.addNewBooking(requestDto, userId);
+        return bookingService.addNewBooking(userId, requestDto);
     }
 
     @PatchMapping("/{bookingId}")

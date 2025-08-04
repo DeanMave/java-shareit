@@ -86,7 +86,7 @@ public class BookingControllerTest {
         BookingResponseDto responseDto = new BookingResponseDto();
         responseDto.setId(1L);
 
-        when(bookingService.addNewBooking(any(BookingRequestDto.class), eq(userId)))
+        when(bookingService.addNewBooking(eq(userId), any(BookingRequestDto.class)))
                 .thenReturn(responseDto);
 
         mockMvc.perform(post("/bookings")

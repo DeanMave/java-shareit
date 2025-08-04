@@ -20,7 +20,7 @@ public interface ItemMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(source = "itemOwnerViewDto.name", target = "name")
-    @Mapping(source = "itemOwnerViewDto.description",target = "description")
+    @Mapping(source = "itemOwnerViewDto.description", target = "description")
     @Mapping(source = "itemRequest", target = "request")
     Item toItem(ItemOwnerViewDto itemOwnerViewDto, User owner, ItemRequest itemRequest);
 
