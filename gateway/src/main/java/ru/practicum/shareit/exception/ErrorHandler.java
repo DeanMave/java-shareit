@@ -36,10 +36,4 @@ public class ErrorHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
     }
 
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Map<String, String> handleException(final Exception e) {
-        log.error("Произошла непредвиденная ошибка: {}", e.getMessage(), e);
-        return Map.of("error", "Возникло исключение.", "message", e.getMessage());
-    }
 }
