@@ -1,0 +1,21 @@
+package ru.practicum.shareit.request.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import ru.practicum.shareit.item.dto.ItemRequestResponseDto;
+import ru.practicum.shareit.user.dto.UserShortDto;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class ItemRequestDtoOut {
+    private Long id;
+    private String description;
+    private UserShortDto requestor;
+    private LocalDateTime created;
+    private List<ItemRequestResponseDto> items;
+}
